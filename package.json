@@ -1,0 +1,8 @@
+{
+  "name": "juicio-ia-votos",
+  "version": "1.0.0",
+  "description": "El juicio a la IA — solo la votación pública por QR (Offsite Secture 2026)",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: juicio-ia-votos
+    runtime: node
+    plan: free
+    buildCommand: "true"
+    startCommand: node server.js
+    envVars:
+      - key: ADMIN_KEY
+        sync: false

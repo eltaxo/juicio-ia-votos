@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Jurado — El juicio a la IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0B1018">
+<link rel="stylesheet" href="css/base.css">
+<style>
+  :root { --carbon: #0B1018; --panel: #111C2A; --blanco: #F1F0EB; --papel: #F5F3ED; --tinta: #15171B; --rojo: #A92D35; --gris: #AEB8C4; --linea: rgba(241,240,235,.18);
+    --tit: 'Instrument Serif', Georgia, serif; --rot: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'IBM Plex Mono', monospace; --maq: 'Courier Prime', 'Courier New', monospace; }
+  body { background: var(--carbon) radial-gradient(ellipse at 60% 30%, rgba(23,34,49,.95), rgba(11,16,24,0) 75%) fixed; color: var(--blanco); font-family: var(--rot); min-height: 100dvh; display: flex; flex-direction: column; -webkit-tap-highlight-color: transparent; }
+  body::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .35; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  header { padding: 18px 22px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--linea); }
+  header b { font: 500 12px var(--mono); letter-spacing: .18em; display: flex; align-items: center; gap: 10px; white-space: nowrap; } header b::before { content: ''; width: 30px; height: 5px; background: var(--rojo); flex: none; }
+  header span { font: 400 11px var(--mono); letter-spacing: .1em; color: var(--gris); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  main { flex: 1; padding: 26px 22px 30px; display: flex; flex-direction: column; justify-content: center; gap: 18px; max-width: 540px; width: 100%; margin: 0 auto; position: relative; z-index: 1; }
+  h1 { font: 400 46px/.96 var(--tit); letter-spacing: -.015em; margin: 0; text-wrap: balance; } h1 i { font-style: italic; }
+  p { font: 400 16px/1.45 var(--rot); margin: 0; color: var(--gris); }
+  .sup { display: flex; align-items: center; gap: 10px; font: 400 12px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--gris); padding-top: 14px; border-top: 1px solid rgba(241,240,235,.3); }
+  .sup::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--rojo); flex: none; animation: latido 1.2s infinite; }
+  /* citación en papel */
+  .doc { background: var(--papel); color: var(--tinta); padding: 22px 22px 24px; transform: rotate(-.6deg); box-shadow: 0 18px 34px rgba(0,0,0,.55); display: flex; flex-direction: column; gap: 14px; font-family: var(--maq); }
+  .doc-cab { display: flex; justify-content: space-between; align-items: flex-end; font-size: 11.5px; line-height: 1.4; padding-bottom: 10px; border-bottom: 3px solid var(--tinta); } .doc-cab u { text-decoration: none; border-bottom: 1px solid var(--tinta); } .doc-cab b { font-size: 13px; letter-spacing: .06em; }
+  .doc h1 { font-size: 44px; } .doc p { color: var(--tinta); font: 400 15px/1.4 var(--maq); }
+  input[type=text] { width: 100%; font: 400 20px var(--maq); padding: 12px 2px 8px; border: 0; border-bottom: 2px solid var(--tinta); background: none; color: var(--tinta); outline: none; border-radius: 0; } input[type=text]::placeholder { color: #15171b66; }
+  .btn { width: 100%; font: 600 15px var(--rot); letter-spacing: .22em; text-transform: uppercase; padding: 18px; border: 0; border-radius: 0; background: var(--blanco); color: var(--tinta); } .doc .btn { background: var(--tinta); color: var(--papel); }
+  .btn:active { opacity: .8; } .btn:disabled { opacity: .4; }
+  /* opciones */
+  .ops { display: flex; flex-direction: column; border-bottom: 1px solid var(--linea); }
+  .op { width: 100%; text-align: left; font: 500 20px/1.2 var(--rot); padding: 17px 12px 17px 6px; border: 0; border-top: 1px solid var(--linea); background: none; color: var(--blanco); display: flex; gap: 16px; align-items: center; border-radius: 0; }
+  .op i { flex: none; width: 26px; font: 500 14px var(--mono); font-style: normal; color: var(--gris); text-align: center; } .multi .op i { width: 22px; height: 22px; border: 1.5px solid var(--gris); }
+  .op.sel { background: var(--blanco); color: var(--tinta); padding-left: 12px; box-shadow: inset 6px 0 0 var(--rojo); font-weight: 600; } .op.sel i { color: var(--rojo); font-size: 17px; } .multi .op.sel i { background: var(--rojo); border-color: var(--rojo); color: #fff; font-size: 14px; line-height: 20px; }
+  .ok { font: 400 12px var(--mono); letter-spacing: .08em; color: var(--gris); min-height: 18px; text-transform: uppercase; } .err { font: 500 12px var(--mono); letter-spacing: .06em; color: #e0616a; text-transform: uppercase; }
+  .espera h1 { font-size: 64px; } .espera .sup::before { animation-duration: 2s; }
+  .gordo { width: min(74vw, 310px); aspect-ratio: 1; border-radius: 50%; border: 0; margin: 14px auto 6px; background: radial-gradient(circle at 36% 30%, #cf4650, var(--rojo) 62%, #7a1c23); color: #fff; font: 700 34px var(--rot); letter-spacing: .12em; box-shadow: 0 12px 0 #4d1116, 0 26px 44px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.3); }
+  .gordo:active { transform: translateY(9px); box-shadow: 0 3px 0 #4d1116; } .gordo.dicho { background: #243D5A; box-shadow: 0 3px 0 #0f1c2b; transform: translateY(9px); color: var(--gris); }
+  .boton .ok { text-align: center; }
+  footer { text-align: left; font: 400 10.5px var(--mono); letter-spacing: .14em; color: #aeb8c488; padding: 14px 22px 18px; border-top: 1px solid var(--linea); display: flex; align-items: center; gap: 10px; text-transform: uppercase; } footer::before { content: ''; width: 8px; height: 8px; background: var(--rojo); }
+</style>
+</head>
+<body>
+<header><b>EL JUICIO A LA IA</b><span id="quien"></span></header>
+<main id="m"></main>
+<footer>Causa 2026/ERR-404 · Juicio en curso</footer>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = 'juicio-ia-jurado';
+let yo = null, vista = '', sel = [], enviado = false;
+try { yo = JSON.parse(localStorage.getItem(LS)); } catch (e) {}
+const BALANZA = '<svg viewBox="0 0 120 120"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M60 22V98M38 98h44M22 36h76"/><path d="M22 36l-14 30a14 9 0 0 0 28 0zM98 36l-14 30a14 9 0 0 0 28 0z"/><rect x="50" y="10" width="20" height="20" rx="3"/></g></svg>';
+
+async function post(ruta, b) {
+  const r = await fetch('api/' + ruta, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Error'); return j;
+}
+function pEntrar(error) {
+  vista = 'entrar'; $('#quien').textContent = ''; $('#m').className = '';
+  $('#m').innerHTML = `<div class="doc"><div class="doc-cab"><div><div>TRIBUNAL TECNOLÓGICO · SECTURE</div><div><u>CITACIÓN DEL JURADO</u></div></div><b>Nº 001</b></div>
+    <h1>Ha sido usted <i>convocado</i></h1>
+    <p>Escriba su nombre para entrar en la sala como miembro del jurado. Si acierta en las votaciones, participa en el sorteo final.</p>
+    <input type="text" id="nombre" placeholder="Nombre y apellido" maxlength="40" autocomplete="name" value="${esc((yo && yo.nombre) || '')}">
+    <button class="btn" id="entrar">Entrar al jurado</button>${error ? `<p class="err">${esc(error)}</p>` : ''}</div>`;
+  const ir = async () => {
+    const nombre = $('#nombre').value.trim(); if (!nombre) return $('#nombre').focus();
+    $('#entrar').disabled = true;
+    try { yo = await post('join', { nombre, id: yo && yo.id }); localStorage.setItem(LS, JSON.stringify(yo)); vista = ''; consultar(); }
+    catch (e) { pEntrar('No se ha podido entrar. Inténtalo otra vez.'); }
+  };
+  $('#entrar').onclick = ir; $('#nombre').onkeydown = e => { if (e.key === 'Enter') ir(); };
+}
+function pEspera() {
+  if (vista === 'espera') return; vista = 'espera';
+  $('#m').className = 'espera';
+  $('#m').innerHTML = `<div class="sup">Jurado · ${esc(yo.nombre)}</div><h1>El tribunal está <i>en sesión</i></h1><p>Atento a la pantalla, ${esc(yo.nombre.split(' ')[0])}. Cuando se abra una votación, aparecerá aquí sola. No cierres esta página.</p>`;
+}
+function pPoll(p, mio) {
+  const clave = p.id + '|' + p.ronda + '|' + p.opciones.join('¦') + '|' + p.pregunta;
+  if (vista !== clave) { vista = clave; sel = mio || []; enviado = !!mio; }
+  $('#m').className = p.tipo;
+  if (p.tipo === 'boton') {
+    $('#m').innerHTML = `<div class="sup">El jurado puede intervenir</div><h1>${esc(p.pregunta)}</h1>
+      <button class="gordo ${enviado ? 'dicho' : ''}" id="gordo">${esc(p.boton || p.opciones[0])}</button><p class="ok">${enviado ? 'Dicho queda. Que conste en acta.' : 'Púlsalo cuando no puedas más.'}</p>`;
+    $('#gordo').onclick = async () => { if (enviado) return; enviado = true; pPoll(p, [0]); try { await post('vote', { id: yo.id, poll: p.id, sel: [0] }); } catch (e) {} if (navigator.vibrate) navigator.vibrate(80); };
+    return;
+  }
+  const multi = p.tipo === 'multi', bloqueado = multi && enviado;
+  $('#m').innerHTML = `<div class="sup">${multi ? 'Confesión anónima' : 'Votación abierta'}</div><h1>${esc(p.pregunta)}</h1>
+    <div class="ops">${p.opciones.map((o, i) => `<button class="op ${sel.includes(i) ? 'sel' : ''}" data-i="${i}" ${bloqueado ? 'disabled' : ''}><i>${sel.includes(i) ? '✓' : multi ? '' : String.fromCharCode(65 + i)}</i>${esc(o)}</button>`).join('')}</div>
+    ${multi ? `<button class="btn" id="enviar" ${bloqueado ? 'disabled' : ''}>${bloqueado ? 'Confesión recibida' : 'Confesar'}</button>` : ''}
+    <p class="ok" id="ok">${multi ? (bloqueado ? 'Es anónimo. Eso dicen.' : 'Marca todas las que apliquen.') : (enviado ? 'Voto registrado. Puedes cambiarlo hasta que se cierre.' : 'Toca una opción.')}</p>`;
+  $('#m').querySelectorAll('.op').forEach(b => (b.onclick = async () => {
+    const i = +b.dataset.i;
+    if (multi) { sel = sel.includes(i) ? sel.filter(x => x !== i) : sel.concat(i); return pPoll(p, null); }
+    sel = [i]; enviado = true; pPoll(p, sel);
+    try { await post('vote', { id: yo.id, poll: p.id, sel }); } catch (e) { $('#ok').textContent = e.message; $('#ok').className = 'err'; }
+  }));
+  if (multi && !bloqueado) $('#enviar').onclick = async () => {
+    try { await post('vote', { id: yo.id, poll: p.id, sel }); enviado = true; pPoll(p, null); } catch (e) { $('#ok').textContent = e.message; $('#ok').className = 'err'; }
+  };
+}
+async function consultar() {
+  if (!yo || !yo.id) return pEntrar();
+  try {
+    const r = await (await fetch('api/poll?id=' + encodeURIComponent(yo.id), { cache: 'no-store' })).json();
+    if (r.fuera) { yo = { nombre: yo.nombre }; return pEntrar(); }
+    $('#quien').textContent = yo.nombre;
+    if (!r.poll) return pEspera();
+    const clave = r.poll.id + '|' + r.poll.ronda + '|' + r.poll.opciones.join('¦') + '|' + r.poll.pregunta;
+    if (vista !== clave) pPoll(r.poll, r.mio);
+  } catch (e) { /* sin red: se reintenta solo */ }
+}
+consultar();
+setInterval(() => { if (vista !== 'entrar') consultar(); }, 1500);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && vista !== 'entrar') consultar(); });
+</script>
+</body>
+</html>
